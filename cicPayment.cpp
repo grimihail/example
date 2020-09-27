@@ -28,7 +28,7 @@
 /************************************************************************************************/
 /* Import objects */
 /* Default (whenever a meter is newly installed) configuration of Import Account */
-PaymentAccountCfg defaultImportAccountCfg = {
+static PaymentAccountCfg defaultImportAccountCfg = {
     .modeAndStatus              = { prepaymentMode, newAccount },       // 2 (creditMode may not change by consumer)
     .clearanceThreshold         = 0,                                    // 7 (may not change by consumer)
     .creditRefList              = { &PaymentImportCreditLn },           // 9 (may not change by consumer)
@@ -43,7 +43,7 @@ PaymentAccountCfg defaultImportAccountCfg = {
 };
 
 /* Default (whenever a meter is newly installed) configuration of Import Credit */
-PaymentCreditCfg defaultImportCreditCfg = {
+static PaymentCreditCfg defaultImportCreditCfg = {
     .creditType                 = tokenCredit,  // 3 (may not change by consumer)
     .priority                   = 1,            // 4 (may not change by consumer)
     .warningThreshold           = 0,            // 5 (may be set by consumer or may remain 0)
@@ -55,7 +55,7 @@ PaymentCreditCfg defaultImportCreditCfg = {
 };
 
 /* Default (whenever a meter is newly installed) configuration of Active TOU Import Charge */
-PaymentChargeCfg defaultActiveImportChargeCfg = {
+static PaymentChargeCfg defaultActiveImportChargeCfg = {
     .chargeType                 = PaymentChargeConsumptionBased,        // 3 (may not change by consumer)
     .priority                   = 1,                                    // 4 (may not change by consumer)
     .unitChargeActive           = {0},                                  // 5 (may be changed by soft)
@@ -66,7 +66,7 @@ PaymentChargeCfg defaultActiveImportChargeCfg = {
     .proportion                 = 0                                     // 13 (may not change by consumer)    
 };
 
-ftPaymentAccount ftImportAccount =
+static ftPaymentAccount ftImportAccount =
 {
     .ftAccountStatus            =       ftImportAccount_AccountStatus,
     .ftAccountActivationTime    =       ftImportAccount_AccountActivationTime,
@@ -76,7 +76,7 @@ ftPaymentAccount ftImportAccount =
     .ftCurrency                 =       ftImportAccount_Currency
 };
 
-ftPaymentCredit ftImportCredit =
+static ftPaymentCredit ftImportCredit =
 {
     .ftCurrentCreditAmount      =       ftImportCredit_CurrentCreditAmountQ,
     .ftWarningThreshold         =       ftImportCredit_WarningThreshold,
@@ -84,7 +84,7 @@ ftPaymentCredit ftImportCredit =
     .ftCreditStatus             =       ftImportCredit_CreditStatus
 };
 
-ftPaymentCharge ftActiveImportCharge =
+static ftPaymentCharge ftActiveImportCharge =
 {
     .ftTotalAmountPaid          =       ftActiveImportCharge_TotalAmountPaidQ,
     .ftUnitChargeActive         =       ftActiveImportCharge_UnitChargeActive,
@@ -98,7 +98,7 @@ ftPaymentCharge ftActiveImportCharge =
     .ftSumToCollect             =       ftActiveImportCharge_SumToCollectQ
 };
 
-ftPaymentTokenGateway ftTokenGatewayForImportAccount =
+static ftPaymentTokenGateway ftTokenGatewayForImportAccount =
 {
     .ftToken                    =       ftImportTokenGateway_Token,
     .ftTokenTime                =       ftImportTokenGateway_TokenTime,
@@ -129,18 +129,18 @@ CIC_STS_CHARGE_ADD_OBJECT( PaymentActiveTouImportChargeLn, PaymentChargeClass, P
 
 CIC_STS_TOKEN_GATEWAY_ADD_OBJECT( PaymentImportTokenGatewayLn, PaymentTokenGatewayClass, TokenGatewayForImportAccount, (&PaymentImportTokenGatewayLn, &defaultTokenGatewayCfg, &ftTokenGatewayForImportAccount) );
 #else
-PaymentCreditClass PaymentImportCredit( &PaymentImportCreditLn, &defaultImportCreditCfg, &ftImportCredit );
-PaymentChargeClass PaymentActiveImportCharge( &PaymentActiveImportChargeLn, &defaultActiveImportChargeCfg, &ftActiveImportCharge );
+static PaymentCreditClass PaymentImportCredit( &PaymentImportCreditLn, &defaultImportCreditCfg, &ftImportCredit );
+static PaymentChargeClass PaymentActiveImportCharge( &PaymentActiveImportChargeLn, &defaultActiveImportChargeCfg, &ftActiveImportCharge );
 
-PaymentTokenGatewayClass TokenGatewayForImportAccount( &PaymentImportTokenGatewayLn, &ftTokenGatewayForImportAccount );
+static PaymentTokenGatewayClass TokenGatewayForImportAccount( &PaymentImportTokenGatewayLn, &ftTokenGatewayForImportAccount );
 #endif
 
-PaymentCreditClass* importAccountCreditList[MAX_OBJECTS_IN_CREDIT_REF_LIST] =
+static PaymentCreditClass* importAccountCreditList[MAX_OBJECTS_IN_CREDIT_REF_LIST] =
 {
     &PaymentImportCredit
 };
 
-PaymentChargeClass* importAccountChargeList[MAX_OBJECTS_IN_CHARGE_REF_LIST] =
+static PaymentChargeClass* importAccountChargeList[MAX_OBJECTS_IN_CHARGE_REF_LIST] =
 {
     &PaymentActiveImportCharge
 };
@@ -148,7 +148,7 @@ PaymentChargeClass* importAccountChargeList[MAX_OBJECTS_IN_CHARGE_REF_LIST] =
 #ifdef NEW_CONST_CLASS_MAP
 CIC_STS_ACCOUNT_ADD_OBJECT( PaymentImportAccountLn, PaymentAccountClass, PaymentImportAccount, (&PaymentImportAccountLn, &defaultImportAccountCfg, importAccountCreditList, importAccountChargeList, &TokenGatewayForImportAccount, &ftImportAccount) );
 #else
-PaymentAccountClass PaymentImportAccount( &PaymentImportAccountLn, &defaultImportAccountCfg, importAccountCreditList, importAccountChargeList, &TokenGatewayForImportAccount, &ftImportAccount );
+static PaymentAccountClass PaymentImportAccount( &PaymentImportAccountLn, &defaultImportAccountCfg, importAccountCreditList, importAccountChargeList, &TokenGatewayForImportAccount, &ftImportAccount );
 #endif
 
 //#ifdef NEW_CONST_CLASS_MAP
@@ -166,34 +166,34 @@ CIC_REGISTER_ADD_OBJECT( ConsumedKWhFromStartLn, ConsumedKWhFromStartClass, Cons
 CIC_DATA_ADD_OBJECT( TokenIDLn, TokenIDClass, TokenIDObject, (&TokenIDLn) );
 CIC_DATA_ADD_OBJECT( ExpiresTimeLn, ExpiresTimeClass, ExpiresTimeObject, (&ExpiresTimeLn) );
 #else
-OutTokenClass OutTokenObject( &OutTokenLn );
-ActiveTransactionIDClass ActiveTransactionIDObject( &ActiveTransactionIDLn );
-TopUpsSumClass TopUpsSumObject( &TopUpsSumLn );
-TotalAmountPaidClass TotalAmountPaidObject( &TotalAmountPaidLn );
-ConsumedKWhFromStartClass ConsumedKWhFromStartObject( &ConsumedKWhFromStartLn );
-TokenIDClass TokenIDObject( &TokenIDLn );
-ExpiresTimeClass ExpiresTimeObject ( &ExpiresTimeLn );
+static OutTokenClass OutTokenObject( &OutTokenLn );
+static ActiveTransactionIDClass ActiveTransactionIDObject( &ActiveTransactionIDLn );
+static TopUpsSumClass TopUpsSumObject( &TopUpsSumLn );
+static TotalAmountPaidClass TotalAmountPaidObject( &TotalAmountPaidLn );
+static ConsumedKWhFromStartClass ConsumedKWhFromStartObject( &ConsumedKWhFromStartLn );
+static TokenIDClass TokenIDObject( &TokenIDLn );
+static ExpiresTimeClass ExpiresTimeObject ( &ExpiresTimeLn );
 #endif
 
 /************************************************************************************************/
 /*********************************** Assist Functions********************************************/
 /************************************************************************************************/
 
-u32 getUTCSecondsWithCorrection( TDateTime dateTime )
+static u32 getUTCSecondsWithCorrection( TDateTime dateTime )
 {
 #warning: "10 years correction because in cicClock UTS seconds calculates from 1980 year"
     dateTime.date.year_low += 10;
     return GetSecondsUTC( &dateTime );
 }
 
-u32 getCurrentUTCSecondsWithCorrection()
+static u32 getCurrentUTCSecondsWithCorrection()
 {
     TDateTime currDateTime;
     GetLocalTime_APDU( &currDateTime );
     return getUTCSecondsWithCorrection( currDateTime );
 }
 
-void SecondsUTC_To_Local_DateTime_WithCorrection( DWORD seconds, TDateTime* dateTime )
+static void SecondsUTC_To_Local_DateTime_WithCorrection( DWORD seconds, TDateTime* dateTime )
 {
 #warning: "10 years correction because in cicClock UTS seconds calculates from 1980 year"
     SecondsTo_Local_DateTime( seconds, dateTime );
@@ -203,7 +203,7 @@ void SecondsUTC_To_Local_DateTime_WithCorrection( DWORD seconds, TDateTime* date
     dateTime->date.w_day = GetWeekDayFromDate( year, dateTime->date.month, dateTime->date.day );
 }
 
-bool cmpDateTimeStructs( const TDateTime* const DateTime1, const TDateTime* const DateTime2 )
+static bool cmpDateTimeStructs( const TDateTime* const DateTime1, const TDateTime* const DateTime2 )
 {
     if( DateTime1->date.year_hi == DateTime2->date.year_hi &&
         DateTime1->date.year_low == DateTime2->date.year_low &&
@@ -217,7 +217,7 @@ bool cmpDateTimeStructs( const TDateTime* const DateTime1, const TDateTime* cons
     return false;
 }
 
-bool cmpDateTimeWithCurrDateTime( const TDateTime* const time )
+static bool cmpDateTimeWithCurrDateTime( const TDateTime* const time )
 {
     TDateTime currDateTime;
     GetLocalTime_APDU( &currDateTime );
@@ -228,7 +228,7 @@ bool cmpDateTimeWithCurrDateTime( const TDateTime* const time )
     return false;
 }
 
-bool cmpDateTimeWithNotSpecifiedDateTime( const TDateTime* const time )
+static bool cmpDateTimeWithNotSpecifiedDateTime( const TDateTime* const time )
 {
     TDateTime notSpecifiedDateTime = { {0xff, 0xff, 0xff, 0xff, 0xff}, {0xff, 0xff, 0xff, 0xff}, 0xff, 0xff };
     
@@ -242,7 +242,7 @@ bool cmpDateTimeWithNotSpecifiedDateTime( const TDateTime* const time )
 Functions compare two logical names.
 Returns true if logical names are equal.
 */
-bool cmpLN( const LOGICAL_NAME* ln1, const LOGICAL_NAME* ln2 )
+static bool cmpLN( const LOGICAL_NAME* ln1, const LOGICAL_NAME* ln2 )
 {
     if( ln1->_A == ln2->_A &&
         ln1->_B == ln2->_B &&
@@ -257,7 +257,7 @@ bool cmpLN( const LOGICAL_NAME* ln1, const LOGICAL_NAME* ln2 )
 Functions search in the array of pointers to logical names (arrayOfLn) given logical name (ln).
 Returns true if there is given ln in arrayOfLn. 
 */
-bool findLnInArrayOfLn( const LOGICAL_NAME* arrayOfLn[], const LOGICAL_NAME* ln, u8 lenOfArray )
+static bool findLnInArrayOfLn( const LOGICAL_NAME* arrayOfLn[], const LOGICAL_NAME* ln, u8 lenOfArray )
 {
     for( u8 i = 0; i < lenOfArray; ++i )
     {
@@ -270,7 +270,7 @@ bool findLnInArrayOfLn( const LOGICAL_NAME* arrayOfLn[], const LOGICAL_NAME* ln,
     return false;               // if there isn't ln in the arrayOfLn
 }
 
-bool cmpIndex( const u8* index1, const u8* index2 )
+static bool cmpIndex( const u8* index1, const u8* index2 )
 {
     for( u8 i = 0; i < MAX_INDEX_LEN; ++i )
     {
@@ -280,7 +280,7 @@ bool cmpIndex( const u8* index1, const u8* index2 )
     return true;                                        // "indexes" are equal
 }
 
-bool cmpIndexWithZero( u8* index )
+static bool cmpIndexWithZero( u8* index )
 {
     for( u8 i = 0; i < MAX_INDEX_LEN; ++i )
     {
@@ -290,7 +290,7 @@ bool cmpIndexWithZero( u8* index )
     return true;
 }
 
-s8 findIndex( const chargeTableElementType* elementList, const u8* index )
+static s8 findIndex( const chargeTableElementType* elementList, const u8* index )
 {
     for( u8 i = 0; i < MAX_TARIFFS; ++i )
     {
@@ -300,7 +300,7 @@ s8 findIndex( const chargeTableElementType* elementList, const u8* index )
     return -1;                                          // "index" was not found
 }
 
-s8 lenChargeTableElement( const chargeTableElementType* elementList )
+static s8 lenChargeTableElement( const chargeTableElementType* elementList )
 {
     s8 len = 0;
     for( int i = 0; i < MAX_TARIFFS; ++i )
@@ -315,7 +315,7 @@ s8 lenChargeTableElement( const chargeTableElementType* elementList )
     return len;
 }
 
-s16 findChargePerUnit( const chargeTableElementType* elementList, const u8* index )
+static s16 findChargePerUnit( const chargeTableElementType* elementList, const u8* index )
 {
     s8 pos = findIndex( elementList, index );
     if( pos == -1 )
@@ -324,7 +324,7 @@ s16 findChargePerUnit( const chargeTableElementType* elementList, const u8* inde
     return elementList[pos].chargePerUnit;              // return charge_per_unit corresponding given "index"
 }
 
-bool cmpOctetStrings( const BYTE* const str1, const BYTE* const str2, u32 len )
+static bool cmpOctetStrings( const BYTE* const str1, const BYTE* const str2, u32 len )
 {
     for( u32 i = 0; i < len; ++i )
     {
@@ -334,7 +334,7 @@ bool cmpOctetStrings( const BYTE* const str1, const BYTE* const str2, u32 len )
     return true;
 }
 
-void convertUnitChargeFromStructToMemoryBuffer( BYTE* dstBufUnitCharge, const PaymentChargeUnitCharge* const src )
+static void convertUnitChargeFromStructToMemoryBuffer( BYTE* dstBufUnitCharge, const PaymentChargeUnitCharge* const src )
 {
     u8 posInBufUnitCharge = 0;
     
@@ -356,7 +356,7 @@ void convertUnitChargeFromStructToMemoryBuffer( BYTE* dstBufUnitCharge, const Pa
     }
 }
 
-void convertUnitChargeFromMemoryBufferToStruct( const BYTE* const srcBufUnitCharge, PaymentChargeUnitCharge* const dst )
+static void convertUnitChargeFromMemoryBufferToStruct( const BYTE* const srcBufUnitCharge, PaymentChargeUnitCharge* const dst )
 {
     u8 posInBufUnitCharge = 0;
     
@@ -382,7 +382,7 @@ void convertUnitChargeFromMemoryBufferToStruct( const BYTE* const srcBufUnitChar
 Function returns adjusted value according with scale.
 scale - necessary value scale;
 */
-s32 scaleValue( s32 value, s8 scale )
+static s32 scaleValue( s32 value, s8 scale )
 {
     if( value == 0 || scale == 0 )
         return value;
@@ -405,7 +405,7 @@ s32 scaleValue( s32 value, s8 scale )
     return value;
 }
 
-s8 GetScalerOfValueFromRegister( const LOGICAL_NAME* const ln )
+static s8 GetScalerOfValueFromRegister( const LOGICAL_NAME* const ln )
 {
     /* Read and save scaler of value from register */
     BYTE bufValueScaler[7] = {};
@@ -416,7 +416,7 @@ s8 GetScalerOfValueFromRegister( const LOGICAL_NAME* const ln )
     return (s8)bufValueScaler[4];            
 }
 
-u64 GetValueFromRegister( const LOGICAL_NAME* const ln )
+static u64 GetValueFromRegister( const LOGICAL_NAME* const ln )
 {
     /* Read and save value from register */
     BYTE bufValue[10] = {};
@@ -508,7 +508,7 @@ void PaymentAccountClass::DistributeTopUpSumWithoutRestrictions( s32 topUpSum )
 {
     /*
     Blue Book, p.188.
-    Credit should be applied first to the lowest priority “Credit” object with
+    Credit should be applied first to the lowest priority РЈCreditР¤ object with
     its credit_status set to (3) In use or (4) Exhausted.
     */
     for( s8 i = lenCreditList - 1; i >= 0; --i )
@@ -557,8 +557,8 @@ void PaymentAccountClass::DistributeTopUpSumWithoutRestrictions( s32 topUpSum )
     
     /*
     Blue book, p.188.
-    Then apportioned to the other “Credit” objects in ascending order of the
-    “Credit” object priority (starting with priority n and ending with priority 1).
+    Then apportioned to the other РЈCreditР¤ objects in ascending order of the
+    РЈCreditР¤ object priority (starting with priority n and ending with priority 1).
     */
     if( topUpSum > 0 )  
     {
@@ -614,7 +614,7 @@ void PaymentAccountClass::DistributeTopUpSumAccordingToProportion( s32 topUpSum 
     /*
     Blue Book, p.188.
     This attribute determines the minimum proportion of the credit token that is
-    attributed to each “Credit” object referenced in the array.
+    attributed to each РЈCreditР¤ object referenced in the array.
     */    
     for( u8 i = 0; i < lenTokenGatewayCfgList; ++i )
     {
@@ -636,8 +636,8 @@ void PaymentAccountClass::DistributeTopUpSumAccordingToProportion( s32 topUpSum 
     /*
     Blue Book, p.188.
     If the sum of the proportions is less than 100% then the remainder will be
-    added to the “Credit” objects using the rules below for an empty
-    “token_gateway_configuration” attribute.
+    added to the РЈCreditР¤ objects using the rules below for an empty
+    РЈtoken_gateway_configurationР¤ attribute.
     */
     if( topUpSum > 0 )          // if smth remained in top up sum
     {
@@ -1040,7 +1040,7 @@ void PaymentAccountClass::IdleSecond()
         /* Described in Blue Book. Credit - warning_threshold */
 //        if( currValues.currCreditStatus & creditStatusLowCredit )
 //        {
-//          // вызвать предупреждения для пользователя, что низкий кредит
+//          // РІС‹Р·РІР°С‚СЊ РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёВ¤ РґР»В¤ РїРѕР»СЊР·РѕРІР°С‚РµР»В¤, С‡С‚Рѕ РЅРёР·РєРёР№ РєСЂРµРґРёС‚
 //        }
         
         if( currValues.currCreditStatus & creditStatusOutOfCredit )
@@ -1293,13 +1293,13 @@ void PaymentCreditClass::IdleSecond()
 //        /* Described in Blue Book. Credit - credit_configuration */
 //        if( creditCfg->creditConfiguration & creditCfgVisualInd )
 //        {
-//            // отображать на дисплее кредит
+//            // РѕС‚РѕР±СЂР°Р¶Р°С‚СЊ РЅР° РґРёСЃРїР»РµРµ РєСЂРµРґРёС‚
 //        }
 //        /* Described in Blue Book. Credit - preset_credit_amount*/
 //        if( creditCfg->creditType == EmergencyCredit )
 //        {
 //            if( (currValues.creditStatus == IN_USE || currValues.creditStatus == EXHAUSTED) &&
-//                 creditCfg->creditConfiguration & creditCfgRepayment )                          // some (or all) credit has been used; - осталось не понятным для меня
+//                 creditCfg->creditConfiguration & creditCfgRepayment )                          // some (or all) credit has been used; - РѕСЃС‚Р°Р»РѕСЃСЊ РЅРµ РїРѕРЅВ¤С‚РЅС‹Рј РґР»В¤ РјРµРЅВ¤
 //              creditCfg->creditConfiguration |= creditCfgReceiveCreditToken;
 //        }
 //
@@ -1513,8 +1513,8 @@ s16 PaymentChargeClass::GetCurrentChargePerUnit() const
     
     u8 activeIndex[MAX_INDEX_LEN] = {0};        // !!! FOR TESTING !!!
     /* !!!
-    прочитать от куда-то index и найти по нему цену в unit_charge_active
-    предусмотреть что тарифф может быть разным в течение периода
+    РїСЂРѕС‡РёС‚Р°С‚СЊ РѕС‚ РєСѓРґР°-С‚Рѕ index Рё РЅР°Р№С‚Рё РїРѕ РЅРµРјСѓ С†РµРЅСѓ РІ unit_charge_active
+    РїСЂРµРґСѓСЃРјРѕС‚СЂРµС‚СЊ С‡С‚Рѕ С‚Р°СЂРёС„С„ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°Р·РЅС‹Рј РІ С‚РµС‡РµРЅРёРµ РїРµСЂРёРѕРґР°
     !!! */
     
     for( u8 i = 0; i < MAX_TARIFFS; ++i )
@@ -1678,7 +1678,7 @@ void PaymentChargeClass::IdleSecond()
                     FileWrite( ftFile->ftSumToCollect, &sumToCollect );
 //                    if( currValues.totalAmountRemaining == 0 )
 //                    {
-//                        // надо отключить сборы с этого charge потомучто лимит исчерпан
+//                        // РЅР°РґРѕ РѕС‚РєР»СЋС‡РёС‚СЊ СЃР±РѕСЂС‹ СЃ СЌС‚РѕРіРѕ charge РїРѕС‚РѕРјСѓС‡С‚Рѕ Р»РёРјРёС‚ РёСЃС‡РµСЂРїР°РЅ
 //                    }
                 }
             }     
